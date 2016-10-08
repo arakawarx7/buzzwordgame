@@ -6,9 +6,9 @@ const PORT = 3000;
 
 var wordArray = [];
 function createBuzzWord(word,points){
-  var bWords=[{ "buzzWord": word, "points": points }];
+  var bWords={ "buzzWord": word, "points": parseInt(points) };
   wordArray.push(bWords);
-  return { "success": true };
+  return { success: true };
 }
 
 app.use(bodyParser.urlencoded({extended : true}));
@@ -19,12 +19,25 @@ app.get('/buzzwords',(req,res)=>{
 });
 
 app.post('/buzzwords',(req,res)=>{
-
- let holder = createBuzzWord(req.body.buzzWord,req.body.points);
- console.log('createbuzzword',holder);
- res.json(holder);
+  var duplicateFound = false;
+  //search the array for any duplicate buzzwords
+  for(var i = 0; i < wordArray.length; i++){
+    if(wordArray[i].buzzWord === req.body.buzzWord){
+     //if duplicate is found take note of it
+      duplicateFound = true;
+    }
+  }
+  //if no duplicate is found, add new buzzword to the array.
+  if(!duplicateFound){
+    createBuzzWord(req.body.buzzWord,req.body.points);
+  }
+   return res.json({
+    //if no duplicate is found return success true.
+    sucess: !duplicateFound
+   });
 });
 
 const server = app.listen(PORT,()=>{
   console.log(`Server started on ${PORT}`);
+
 });
